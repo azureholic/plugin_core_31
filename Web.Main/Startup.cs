@@ -36,6 +36,7 @@ namespace Web.Main {
                     typeof(ControllerBase) }
                 );
 
+            //register the services for DI
             foreach(var customerServiceType in customerPluginLoader.LoadDefaultAssembly()
                 .GetTypes()
                 .Where(t => typeof(IPluginFactory).IsAssignableFrom(t) && !t.IsAbstract)) 
@@ -48,8 +49,9 @@ namespace Web.Main {
 
            
             services.AddControllers()
+                //Add a plugin with services from its loader 
                 .AddPluginLoader(customerPluginLoader)
-                //.AddPluginFromAssemblyFile(customerPlugin)
+                //Add a plugin directly from its file - just a controller
                 .AddPluginFromAssemblyFile(orderPlugin);
 
 
