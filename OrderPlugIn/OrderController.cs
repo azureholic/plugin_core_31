@@ -15,9 +15,11 @@ namespace OrderPlugIn {
     public class OrderController : ControllerBase {
         private readonly ILogger _logger;
         private readonly string _baseAddress = "https://localhost:5001";
+        private readonly ICustomerService _customerService;
 
-        public OrderController(ILogger<OrderController> logger) {
+        public OrderController(ILogger<OrderController> logger, ICustomerService customerService) {
             _logger = logger;
+            _customerService = customerService;
         }
 
         [HttpGet]
@@ -28,7 +30,8 @@ namespace OrderPlugIn {
             Order order = new Order();
             order.OrderNr = OrderId;
             _logger.LogInformation("Getting customer for order {OrderId}", OrderId);
-            order.Customer = await GetCustomer(OrderId);
+            //order.Customer = await GetCustomer(OrderId);
+            order.Customer = _customerService.GetCustomer(OrderId);
 
             return Ok(order);
         }

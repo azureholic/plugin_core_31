@@ -8,5 +8,9 @@
     <PackageReference Include="McMaster.NETCore.Plugins.Mvc" Version="1.4.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\SharedDomain\SharedDomain.csproj" />
+  </ItemGroup>
+
 
 </Project>

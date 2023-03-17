@@ -1,3 +1,4 @@
+using McMaster.NETCore.Plugins;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -6,6 +7,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using SharedDomain;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,9 +27,29 @@ namespace Web.Main {
             string customerPlugin = Configuration["CustomerPlugIn"];
             string orderPlugin = Configuration["OrderPlugIn"];
 
-            
+            //load a plugin with a service
+            var customerPluginLoader = PluginLoader.CreateFromAssemblyFile(
+                customerPlugin,
+                sharedTypes: new[] { 
+                    typeof(IPluginFactory), 
+                    typeof(IServiceCollection), 
+                    typeof(ControllerBase) }
+                );
+
+            foreach(var customerServiceType in customerPluginLoader.LoadDefaultAssembly()
+                .GetTypes()
+                .Where(t => typeof(IPluginFactory).IsAssignableFrom(t) && !t.IsAbstract)) 
+            {
+                var pluginService = Activator.CreateInstance(customerServiceType) as IPluginFactory;
+                pluginService?.Configure(services);
+
+            }
+
+
+           
             services.AddControllers()
-                .AddPluginFromAssemblyFile(customerPlugin)
+                .AddPluginLoader(customerPluginLoader)
+                //.AddPluginFromAssemblyFile(customerPlugin)
                 .AddPluginFromAssemblyFile(orderPlugin);
 
 
